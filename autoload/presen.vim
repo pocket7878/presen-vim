@@ -192,6 +192,9 @@ function! s:parseContents(linum,centerp, contents)"{{{
                                 let l:linum += 1
                                 let l:linum = s:parseContents(l:linum,1, item[1 : ])
                                 let l:linum += 1
+                        elseif item[0] ==# "hl"
+                                call curses#display#mvprinthl(l:linum)
+                                let l:linum += 1
                         ""PrintList
                         "Item list
                         elseif item[0] ==# 'ul'
