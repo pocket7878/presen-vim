@@ -8,3 +8,6 @@ Install presen-vim and run
 
 ## Write Slides
 See a sample files under sample directory for example. 
+
+## Warning
+This plugin depends on [curses-vim](https://github.com/pocket7878/curses-vim). Please install it first.
