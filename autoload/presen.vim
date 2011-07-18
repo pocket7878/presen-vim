@@ -195,11 +195,21 @@ function! s:parseContents(linum,centerp, contents)"{{{
                         elseif item[0] ==# "hl"
                                 call curses#display#mvprinthl(l:linum)
                                 let l:linum += 1
+                        elseif item[0] ==# "vimlogo"
+                                if a:centerp
+                                        call s:cprintVimLogo(l:linum)
+                                else
+                                        call s:printVimLogo(l:linum,1)
+                                endif
+                                let l:linum += 15
+                        elseif item[0] ==# "t"
+                                call curses#display#mvcprintw(curses#info#rows()/2, item[1])
+                                break
                         ""PrintList
                         "Item list
                         elseif item[0] ==# 'ul'
                                 if a:centerp
-                                        call curses#display#cprintList(l:linum, "* ",item[1 : ])
+                                        call curses#display#mvcprintList(l:linum, "* ",item[1 : ])
                                 else
                                         call curses#display#mvprintList(l:linum, 1, "* ",item[1 : ])
                                 endif
@@ -207,14 +217,14 @@ function! s:parseContents(linum,centerp, contents)"{{{
                         "Numberd list
                         elseif item[0] ==# 'ol'
                                 if a:centerp
-                                        call curses#display#cnprintList(l:linum, item[1 : ])
+                                        call curses#display#mvcnprintList(l:linum, item[1 : ])
                                 else
                                         call curses#display#mvnprintList(l:linum, 1, item[1 : ])
                                 endif
                                 let l:linum += len(item[1 : ])
                         elseif item[0] ==# 'lines'
                                 if a:centerp
-                                        call curses#display#cprintList(l:linum, "",item[1 : ])
+                                        call curses#display#mvcprintList(l:linum, "",item[1 : ])
                                 else
                                         call curses#display#mvprintList(l:linum, 1, "",item[1 : ])
                                 endif
@@ -299,4 +309,43 @@ function! presen#presentation(vpfilepath)"{{{
         call curses#endWin()
         "そして元のバッファーへ復帰するのさ
         execute 'buffer' s:prevBufNr
+endfunction"}}}
+
+"いくつか、おもしろとしてつくっておく関数たち
+function! s:printVimLogo(y,x)"{{{
+        call curses#display#mvprintList(a:y, a:x, "",[
+\"        ________ ++     ________",
+\"       /VVVVVVVV\++++  /VVVVVVVV\\",
+\"       \VVVVVVVV/++++++\VVVVVVVV/",
+\"        |VVVVVV|++++++++/VVVVV/'",
+\"        |VVVVVV|++++++/VVVVV/'",
+\"       +|VVVVVV|++++/VVVVV/'+",
+\"     +++|VVVVVV|++/VVVVV/'+++++",
+\"   +++++|VVVVVV|/VVVVV/'+++++++++",
+\"     +++|VVVVVVVVVVV/'+++++++++",
+\"       +|VVVVVVVVV/'+++++++++",
+\"        |VVVVVVV/'+++++++++",
+\"        |VVVVV/'+++++++++",
+\"        |VVV/'+++++++++",
+\"        'V/'   ++++++",
+\"                 ++"])
+endfunction"}}}
+
+function! s:cprintVimLogo(y)"{{{
+        call curses#display#mvcprintList(a:y, "",[
+\"        ________ ++     ________",
+\"       /VVVVVVVV\++++  /VVVVVVVV\\",
+\"       \VVVVVVVV/++++++\VVVVVVVV/",
+\"        |VVVVVV|++++++++/VVVVV/'",
+\"        |VVVVVV|++++++/VVVVV/'",
+\"       +|VVVVVV|++++/VVVVV/'+",
+\"     +++|VVVVVV|++/VVVVV/'+++++",
+\"   +++++|VVVVVV|/VVVVV/'+++++++++",
+\"     +++|VVVVVVVVVVV/'+++++++++",
+\"       +|VVVVVVVVV/'+++++++++",
+\"        |VVVVVVV/'+++++++++",
+\"        |VVVVV/'+++++++++",
+\"        |VVV/'+++++++++",
+\"        'V/'   ++++++",
+\"                 ++"])
 endfunction"}}}
