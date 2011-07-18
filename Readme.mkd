@@ -1,0 +1,10 @@
+# presen-vim
+Yet Another presenation tool for vim.
+
+# How to use
+Install presen-vim and run 
+
+        :Presen /path/to/your/vimpresen/file
+
+## Write Slides
+See a sample files under sample directory for example. 

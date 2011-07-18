@@ -1,0 +1,70 @@
+((title  "Introduction of curses-vim and presenvim")
+ (contents
+  (center
+   (vimlogo))))
+
+((title "curses-vimとpresen-vimのご紹介")
+ (contents
+  (center
+          (hl)
+          (ol
+            "curses-vimとは？"
+            "curses-vimでできること"
+            "presen-vimとは？"
+            "presen-vimでできること"
+            "それぞれのライブラリの今後の予定とか"))))
+
+((title "curses-vimとは？")
+ (contents
+  (center 
+    (lines "cursesのようなvimのbufferの操作を可能にするためのライブラリ"
+           "vim上で文字を構造的に表示したり、cursesでできるようなアニメーションを作成したり"))))
+
+((title "curses-vimでできること")
+ (contents
+  (center
+    (ul
+     "initScr(),endWin(),addch(),printw(),getch()などの基本的な関数はもちろん"
+     "cprintw(): 画面中央に表示"
+     "printList() :リストを表示")
+    "のように抽象てきなレベルでの表示操作の関数も用意した")))
+
+((title "presen-vimとは？")
+ (contents
+  (center 
+    (lines "curses-vimの上の構築したvimでプレゼンテーションするためのプラグイン"
+           "S式のような独自の構文でページを定義して'h','l'などのキーで操作できる"))))
+
+((title "presen-vimでできること")
+ (contents
+  (center
+   "当然このプレゼンもpresen-vimで実行している"
+   (ol
+    "番号つきリストで"
+    "表示したり")
+   (ul
+    "通常のアイテムリストで"
+    "表示したり"))
+  "中央ぞろででなく普通にはしに表示したり"
+  (center
+        (p
+          (lines
+           "また中央に表示"
+           "(defun fact (n)"
+           "  (if (zerop n)"
+           "      1"
+           "      (* n (fact (1- n)))))")))
+  (ol
+   "ふたたび端に"
+   "番号リストです")
+  (ul
+   "アイテムリスト")))
+
+((title "それぞれのライブラリの今後の予定とか")
+ (contents
+  (center
+   (ul
+    "S式風の構文をパースして処理しているだけなので、ほかにもレイアウトは実装できそうだ"
+    "どうせなら、アニメーションも可能にしたい")
+   "Vimはプレゼンツールにもなる！！")))
+
