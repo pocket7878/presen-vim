@@ -272,6 +272,41 @@ function! s:openPresenWindow()"{{{
         endif
 endfunction"}}}
 
+"ページ遷移のための関数群
+"指定番号のページを表示する
+function! s:show_page(page)"{{{
+        let b:page = a:page
+        "画面を消去
+        call curses#erase() 
+        "現在のページを表示する
+        call s:ParsePage(b:PresenScript[a:page - 1])
+        redraw
+endfunction"}}}
+
+"次のページがあればそれを表示する
+function! presen#nextPage()"{{{
+        if b:page != b:pages
+                let b:page += 1
+        endif
+        call s:show_page(b:page)
+endfunction"}}}
+
+"前のページがあればそれを表示する
+function! presen#prevPage()"{{{
+        if b:page != 1
+                let b:page -= 1
+        endif
+        call s:show_page(b:page)
+endfunction"}}}
+
+"プレゼンを終了する
+function! presen#quit()"{{{
+        "画面を復帰
+        call curses#endWin()
+        "そして元のバッファーへ復帰するのさ
+        execute 'buffer' s:prevBufNr
+endfunction"}}}
+
 function! presen#presentation(vpfilepath)"{{{
         "プレゼンスクリプトをファイルから作成する
         let l:PresenScript = s:CreatePresenScript(a:vpfilepath)
@@ -283,32 +318,14 @@ function! presen#presentation(vpfilepath)"{{{
         let l:ch = ''
         "プレゼンようのウィンドウとバッファーをオープンする
         call s:openPresenWindow()
+        "外部の関数からも利用するために、バッファローカル変数にPresenScriptを保存する
+        let b:PresenScript = l:PresenScript
         "そのバッファを初期化
         call curses#initScr()
-        "ステータスラインに表示するために、バッファローカルな変数に総ページを保存する
-        while l:ch != 'q'
-                "画面を消去
-                call curses#erase() 
-                "現在のページを表示する
-                call s:ParsePage(l:PresenScript[l:page - 1])
-                redraw
-                "ユーザーからの入力まち
-                let l:ch = curses#getch()
-                "入力にあわせてページ移動
-                if l:ch ==# 'l'
-                        if l:page != l:pages
-                                let l:page += 1
-                        endif
-                elseif l:ch ==# 'h'
-                        if l:page != 1
-                                let l:page -= 1
-                        endif
-                endif
-        endwhile
-        "画面を復帰
-        call curses#endWin()
-        "そして元のバッファーへ復帰するのさ
-        execute 'buffer' s:prevBufNr
+        "nextPage()やprevPage()から表示するために、pagesをバッファローカルな変数に保存
+        let b:pages = l:pages
+        "1ページを表示
+        call s:show_page(1)
 endfunction"}}}
 
 "いくつか、おもしろとしてつくっておく関数たち
@@ -349,3 +366,4 @@ function! s:cprintVimLogo(y)"{{{
 \"        'V/'   ++++++",
 \"                 ++"])
 endfunction"}}}
+
