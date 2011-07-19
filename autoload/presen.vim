@@ -299,6 +299,18 @@ function! presen#prevPage()"{{{
         call s:show_page(b:page)
 endfunction"}}}
 
+"最初のページに遷移する
+function! presen#firstPage()"{{{
+        let b:page = 1
+        call s:show_page(b:page)
+endfunction"}}}
+
+"最後のページに遷移する
+function! presen#lastPage()"{{{
+        let b:page = b:pages
+        call s:show_page(b:page)
+endfunction"}}}
+
 "プレゼンを終了する
 function! presen#quit()"{{{
         "画面を復帰
