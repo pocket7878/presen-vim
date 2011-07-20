@@ -2,14 +2,25 @@
 let s:V = vital#of('presen_vim')
 
 function! s:ReadVp(vpfilepath)"{{{
-        let l:buf = []
-        for line in readfile(a:vpfilepath)        
-                let line = substitute(line,"^\\s\\+\\|\\s\\+$","","g")
-                ";以降の行は無視する"
-                if line !~ "^;"
-                        call add(l:buf, line)
-                endif
-        endfor
+        if a:vpfilepath ==# '%'
+                for i in range(1, line('$'))
+                        let l:line = getline(i)
+                        let l:line = substitute(l:line,"^\\s\\+\\|\\s\\+$","","g")
+                        ";以降の行は無視する"
+                        if l:line !~ "^;"
+                                call add(l:buf, l:line)
+                        endif
+                endfor
+        else
+                let l:buf = []
+                for line in readfile(a:vpfilepath)        
+                        let line = substitute(line,"^\\s\\+\\|\\s\\+$","","g")
+                        ";以降の行は無視する"
+                        if line !~ "^;"
+                                call add(l:buf, line)
+                        endif
+                endfor
+        endif
         return join(l:buf, ' ')
 endfunction"}}}
 
@@ -311,9 +322,21 @@ function! s:applyContext(context)"{{{
         if has('gui_running')
                 if has_key(a:context, 'font-family')
                         if has_key(a:context, 'font-size')
-                                set guifont=a:context['font-family'].':h'.a:context['font-size']
+                                if s:V.is_windows()
+                                        execute 'set guifont='.a:context['font-family'].':h'.a:context['font-size']
+                                elseif s:V.is_mac()
+                                        execute 'set guifont='.a:context['font-family'].':h'.a:context['font-size']
+                                elseif has("gui_gtk2")
+                                        execute 'set guifont='.a:context['font-family'].'\ '.a:context['font-size']
+                                endif
                         else
-                                set guifont=a:context['font-family'].':h10'
+                                if s:V.is_windows()
+                                        execute 'set guifont='.a:context['font-family'].':h10'
+                                elseif s:V.is_mac()
+                                        execute 'set guifont='.a:context['font-family'].':h10'
+                                elseif has("gui_gtk2")
+                                        execute 'set guifont='.a:context['font-family'].'\ 10'
+                                endif
                         endif
                 endif
         endif
@@ -368,19 +391,20 @@ function! presen#quit()"{{{
 endfunction"}}}
 
 function! presen#presentation(vpfilepath)"{{{
-        "TODO %で現在のバッファーの内容というのを指定された時に対応する
-        "Check Error
-        if isdirectory(a:vpfilepath)
-                call s:V.print_error(a:vpfilepath.'is not a file.')
-                return
-        endif
-        if glob(a:vpfilepath) ==# ''
-                call s:V.print_error(a:vpfilepath." does not exist.")
-                return
-        endif
-        if !filereadable(expand(a:vpfilepath))
-                call s:V.print_error("Can't read ".a:vpfilepath.'.')
-                return
+        if !a:vpfilepath ==# '%' 
+                "Check Error
+                if isdirectory(a:vpfilepath)
+                        call s:V.print_error(a:vpfilepath.'is not a file.')
+                        return
+                endif
+                if glob(a:vpfilepath) ==# ''
+                        call s:V.print_error(a:vpfilepath." does not exist.")
+                        return
+                endif
+                if !filereadable(expand(a:vpfilepath))
+                        call s:V.print_error("Can't read ".a:vpfilepath.'.')
+                        return
+                endif
         endif
         "プレゼンスクリプトをファイルから作成する
         let l:PresenScript = s:CreatePresenScript(a:vpfilepath)
