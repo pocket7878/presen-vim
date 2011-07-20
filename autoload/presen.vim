@@ -2,7 +2,9 @@
 let s:V = vital#of('presen_vim')
 
 function! s:ReadVp(vpfilepath)"{{{
-        if a:vpfilepath ==# '%'
+        echo a:vpfilepath
+        let l:buf = []
+        if a:vpfilepath ==# ''
                 for i in range(1, line('$'))
                         let l:line = getline(i)
                         let l:line = substitute(l:line,"^\\s\\+\\|\\s\\+$","","g")
@@ -12,7 +14,6 @@ function! s:ReadVp(vpfilepath)"{{{
                         endif
                 endfor
         else
-                let l:buf = []
                 for line in readfile(a:vpfilepath)        
                         let line = substitute(line,"^\\s\\+\\|\\s\\+$","","g")
                         ";以降の行は無視する"
@@ -297,15 +298,27 @@ function! s:openPresenWindow()"{{{
         endif
         if !bufexists(s:bufnr)
                 let s:prevBufNr = bufnr('%')
+                "Save hidden option
+                let s:hiddenOpt = &hidden
+                "set hidden option
+                setlocal hidden
                 edit `='[Presentation]'`
                 let s:bufnr = bufnr('%')
                 setlocal bufhidden=hide buftype=nofile noswapfile nobuflisted
                 setlocal filetype=presen
         elseif bufwinnr(s:bufnr) != -1
                 let s:prevBufNr = bufnr('%')
+                "Save hidden option
+                let s:hiddenOpt = &hidden
+                "set hidden option
+                setlocal hidden
                 execute bufwinnr(s:bufnr) 'wincmd w'
         else
                 let s:prevBufNr = bufnr('%')
+                "Save hidden option
+                let s:hiddenOpt = &hidden
+                "set hidden option
+                setlocal hidden
                 execute 'buffer' s:bufnr
         endif
 endfunction"}}}
@@ -382,10 +395,14 @@ function! presen#quit()"{{{
         call s:applyContext(s:context)
         "そして元のバッファーへ復帰するのさ
         execute 'buffer' s:prevBufNr
+        if !s:hiddenOpt
+                setlocal nohidden
+        endif
 endfunction"}}}
 
 function! presen#presentation(vpfilepath)"{{{
-        if !a:vpfilepath ==# '%' 
+        echo a:vpfilepath
+        if a:vpfilepath != ''
                 "Check Error
                 if isdirectory(a:vpfilepath)
                         call s:V.print_error(a:vpfilepath.'is not a file.')

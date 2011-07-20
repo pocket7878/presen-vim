@@ -6,6 +6,10 @@ Install presen-vim and run
 
         :Presen /path/to/your/vimpresen/file
 
+If you omit argument then use current buffer contents.
+
+        :Presen
+
 ## Write Slides
 See a sample files under sample directory for example. 
 
