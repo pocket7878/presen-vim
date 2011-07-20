@@ -170,10 +170,8 @@ function! s:ContextArrToContextDict(context)"{{{
                         let l:dict['width'] = a:context[idx][1]
                 elseif a:context[idx][0] ==# 'height'
                         let l:dict['height'] = a:context[idx][1]
-                elseif a:context[idx][0] ==# 'font-family'
-                        let l:dict['font-family'] = a:context[idx][1]
-                elseif a:context[idx][0] ==# 'font-size'
-                        let l:dict['font-size'] = a:context[idx][1]
+                elseif a:context[idx][0] ==# 'font'
+                        let l:dict['font'] = a:context[idx][1]
                 endif
         endfor
         return l:dict
