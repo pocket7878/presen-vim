@@ -398,10 +398,11 @@ endfunction"}}}
 function! presen#quit()"{{{
         "画面を復帰
         call curses#endWin()
-        "コンテキストも復帰する
-        call s:applyContext(s:context)
         "そして元のバッファーへ復帰するのさ
         execute 'buffer' s:prevBufNr
+        "ここの順序をまちがえるとVimresizedに反応して再描画される
+        "コンテキストも復帰する
+        call s:applyContext(s:context)
         if !s:hiddenOpt
                 setlocal nohidden
         endif
