@@ -312,6 +312,16 @@ function! s:openPresenWindow()"{{{
         endif
 endfunction"}}}
 
+function! s:getCurrentContext()"{{{
+        let l:context = {}
+        let l:context['width'] = &columns
+        let l:context['height'] = &lines
+        if has('gui_running')
+                let l:context['font'] = &guifont
+        endif
+        return l:context
+endfunction"}}}
+
 function! s:applyContext(context)"{{{
         if has_key(a:context, 'width')
                 execute 'set columns='.str2nr(a:context['width'])
@@ -320,24 +330,8 @@ function! s:applyContext(context)"{{{
                 execute 'set lines='.str2nr(a:context['height'])
         endif
         if has('gui_running')
-                if has_key(a:context, 'font-family')
-                        if has_key(a:context, 'font-size')
-                                if s:V.is_windows()
-                                        execute 'set guifont='.a:context['font-family'].':h'.a:context['font-size']
-                                elseif s:V.is_mac()
-                                        execute 'set guifont='.a:context['font-family'].':h'.a:context['font-size']
-                                elseif has("gui_gtk2")
-                                        execute 'set guifont='.a:context['font-family'].'\ '.a:context['font-size']
-                                endif
-                        else
-                                if s:V.is_windows()
-                                        execute 'set guifont='.a:context['font-family'].':h10'
-                                elseif s:V.is_mac()
-                                        execute 'set guifont='.a:context['font-family'].':h10'
-                                elseif has("gui_gtk2")
-                                        execute 'set guifont='.a:context['font-family'].'\ 10'
-                                endif
-                        endif
+                if has_key(a:context, 'font')
+                        execute 'set guifont='.escape(a:context['font'],' ')
                 endif
         endif
 endfunction"}}}
@@ -386,6 +380,8 @@ endfunction"}}}
 function! presen#quit()"{{{
         "画面を復帰
         call curses#endWin()
+        "コンテキストも復帰する
+        call s:applyContext(s:context)
         "そして元のバッファーへ復帰するのさ
         execute 'buffer' s:prevBufNr
 endfunction"}}}
@@ -418,7 +414,9 @@ function! presen#presentation(vpfilepath)"{{{
         let l:ch = ''
         "プレゼンようのウィンドウとバッファーをオープンする
         call s:openPresenWindow()
-        "コンテキストを反映する
+        "現在のコンテキストを保存する
+        let s:context = s:getCurrentContext()
+        "コンテキストを反映する(なければ何も発生しないので得にexistsのチェックはしない）
         call s:applyContext(l:context)
         "外部の関数からも利用するために、バッファローカル変数にPresenScriptを保存する
         let b:PresenScript = l:PresenScript
