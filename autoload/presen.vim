@@ -281,7 +281,7 @@ function! s:show_page(page)"{{{
         call curses#erase() 
         "現在のページを表示する
         call s:ParsePage(b:PresenScript[a:page - 1])
-        setlocal statusline=%{b:page}/%{b:pages}
+        setlocal statusline=[%{b:page}/%{b:pages}]
         redraw
 endfunction"}}}
 
