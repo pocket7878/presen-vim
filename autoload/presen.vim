@@ -1,3 +1,6 @@
+"Vital
+let s:V = vital#of('presen_vim')
+
 function! s:ReadVp(vpfilepath)"{{{
         let l:buf = []
         for line in readfile(a:vpfilepath)        
@@ -322,6 +325,20 @@ function! presen#quit()"{{{
 endfunction"}}}
 
 function! presen#presentation(vpfilepath)"{{{
+        "TODO %で現在のバッファーの内容というのを指定された時に対応する
+        "Check Error
+        if isdirectory(a:vpfilepath)
+                call s:V.print_error(a:vpfilepath.'is not a file.')
+                return
+        endif
+        if glob(a:vpfilepath) ==# ''
+                call s:V.print_error(a:vpfilepath." does not exist.")
+                return
+        endif
+        if !filereadable(expand(a:vpfilepath))
+                call s:V.print_error("Can't read ".a:vpfilepath.'.')
+                return
+        endif
         "プレゼンスクリプトをファイルから作成する
         let l:PresenScript = s:CreatePresenScript(a:vpfilepath)
         "総ページ数を取得
