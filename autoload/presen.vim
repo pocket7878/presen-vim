@@ -359,6 +359,13 @@ function! s:show_page(page)"{{{
         redraw
 endfunction"}}}
 
+"現在のページを再描画する
+function s:redraw_page()"{{{
+        call curses#erase()
+        call s:ParsePage(b:PresenScript[1][b:page - 1])
+        setlocal statusline=[%{b:page}/%{b:pages}]
+        redraw
+endfunction"}}}
 "次のページがあればそれを表示する
 function! presen#nextPage()"{{{
         if b:page != b:pages
@@ -441,6 +448,8 @@ function! presen#presentation(vpfilepath)"{{{
         let b:pages = l:pages
         "1ページを表示
         call s:show_page(1)
+        "バッファーローカルな再描画autocmdを設定する
+        autocmd! VimResized <buffer> call s:redraw_page()
 endfunction"}}}
 
 "いくつか、おもしろとしてつくっておく関数たち
