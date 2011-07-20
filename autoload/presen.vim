@@ -152,6 +152,22 @@ function! s:GetSexp(vpBuf)"{{{
         return l:buf
 endfunction"}}}
 
+function! s:ContextArrToContextDict(context)"{{{
+        let l:dict = {}
+        for idx in range(0, len(a:context)-1)
+                if a:context[idx][0] ==# 'width'
+                        let l:dict['width'] = a:context[idx][1]
+                elseif a:context[idx][0] ==# 'height'
+                        let l:dict['height'] = a:context[idx][1]
+                elseif a:context[idx][0] ==# 'font-family'
+                        let l:dict['font-family'] = a:context[idx][1]
+                elseif a:context[idx][0] ==# 'font-size'
+                        let l:dict['font-size'] = a:context[idx][1]
+                endif
+        endfor
+        return l:dict
+endfunction"}}}
+
 function! s:PageArrToPageDict(page)"{{{
         let l:dict = {}
         for idx in range(0, len(a:page)-1)
@@ -167,21 +183,30 @@ endfunction"}}}
 function! s:CreatePresenScript(vpfilepath)"{{{
         let l:tokens = s:CreateToken(a:vpfilepath)
         let l:pages = []
+        let l:context = {}
         let l:idx = 0
         let l:finish = 0
         while l:finish != 1
                 if len(l:tokens) == 0
                         let l:finish = 1
                 else
-                        "Get Page
+                        "Get One sexp
                         let l:Page = s:GetSexp(l:tokens)
-                        "Add Page
-                        call add(l:pages, s:PageArrToPageDict(l:Page[0]))
+                        "Check sexp type (defslide or defcontext)
+                        if l:Page[0][0] ==# "defcontext"
+                                "つまり最後に定義されたコンテキストが有効になる
+                                let l:context = s:ContextArrToContextDict(l:Page[0][1 :])
+                        elseif l:Page[0][0] ==# "defslide"
+                                for pageArry in l:Page[0][1 : ]
+                                        "Add Page
+                                        call add(l:pages, s:PageArrToPageDict(pageArry))
+                                endfor
+                        endif
                         "Forword idx
                         let l:tokens = l:tokens[s:ListTokenLength(l:Page[0]) : ]
                 endif
         endwhile
-        return l:pages
+        return [l:context, l:pages]
 endfunction"}}}
 
 function! s:parseContents(linum,centerp, contents)"{{{
@@ -276,6 +301,24 @@ function! s:openPresenWindow()"{{{
         endif
 endfunction"}}}
 
+function! s:applyContext(context)"{{{
+        if has_key(a:context, 'width')
+                execute 'set columns='.str2nr(a:context['width'])
+        endif
+        if has_key(a:context, 'height')
+                execute 'set lines='.str2nr(a:context['height'])
+        endif
+        if has('gui_running')
+                if has_key(a:context, 'font-family')
+                        if has_key(a:context, 'font-size')
+                                set guifont=a:context['font-family'].':h'.a:context['font-size']
+                        else
+                                set guifont=a:context['font-family'].':h10'
+                        endif
+                endif
+        endif
+endfunction"}}}
+
 "ページ遷移のための関数群
 "指定番号のページを表示する
 function! s:show_page(page)"{{{
@@ -283,7 +326,7 @@ function! s:show_page(page)"{{{
         "画面を消去
         call curses#erase() 
         "現在のページを表示する
-        call s:ParsePage(b:PresenScript[a:page - 1])
+        call s:ParsePage(b:PresenScript[1][a:page - 1])
         setlocal statusline=[%{b:page}/%{b:pages}]
         redraw
 endfunction"}}}
@@ -341,14 +384,18 @@ function! presen#presentation(vpfilepath)"{{{
         endif
         "プレゼンスクリプトをファイルから作成する
         let l:PresenScript = s:CreatePresenScript(a:vpfilepath)
+        "コンテキストを取得
+        let l:context = l:PresenScript[0]
         "総ページ数を取得
-        let l:pages = len(l:PresenScript)
+        let l:pages = len(l:PresenScript[1])
         "最初は1ページから
         let l:page = 1
         "ユーザーの入力を保存する変数
         let l:ch = ''
         "プレゼンようのウィンドウとバッファーをオープンする
         call s:openPresenWindow()
+        "コンテキストを反映する
+        call s:applyContext(l:context)
         "外部の関数からも利用するために、バッファローカル変数にPresenScriptを保存する
         let b:PresenScript = l:PresenScript
         "そのバッファを初期化
