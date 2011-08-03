@@ -1,0 +1,78 @@
+*presen-vim.txt* *presen-vim* 
+
+Author:
+  Pocket7878 <poketo7878@gmail.com>
+Version: 1.2
+License: Under the same license as Vim itself (see :help license)
+
+==============================================================================
+CONTENTS						*presen-vim-contents*
+
+Introduction					|presen-vim-introduction|
+Interface						|presen-vim-interface|
+  Keymappings						|presen-vim-keymappings|
+  Variables							|presen-vim-variables|
+  Commands							|presen-vim-commands|
+  Functions							|presen-vim-functions|
+
+
+==============================================================================
+INTRODUCTION						*presen-vim-introduction* {{{
+		Yet another presentation tool for vim.
+}}}
+==============================================================================
+INTERFACE					*presen-vim-interface* {{{
+------------------------------------------------------------------------------
+KEYMAPPINGS					*presen-vim-keymappings* {{{
+
+Normal mode mappings. This keybinds only enable in 
+presentation buffer.
+
+<Plug>(presen_prevPage)					|<Plug>(presen-prevPage)|
+<Plug>(presen_nextPage)					|<Plug>(presen-nextPage)|
+<Plug>(presen_firstPage)				|<Plug>(presen_firstPage)|
+<Plug>(presen_lastPage)					|<Plug>(presen_lastPage)|
+<Plug>(presen_quit)						|<Plug>(presen_quit)|
+
+Default keybinds.
+		h <Plug>(presen_prevPage)					|<Plug>(presen-prevPage)|
+		l <Plug>(presen_nextPage)					|<Plug>(presen-nextPage)|
+		< <Plug>(presen_firstPage)					|<Plug>(presen_firstPage)|
+		> <Plug>(presen_lastPage)					|<Plug>(presen_lastPage)|
+		q <Plug>(presen_quit)						|<Plug>(presen_quit)|
+
+}}}
+------------------------------------------------------------------------------
+VARIABLES					*presen-vim-variables* {{{
+
+g:presen_vim_no_default_key_mappings  *g:presen_vim_no_default_key_mappings*
+		If it's 1, presen-vim doesn't map any default key mappings.  You
+		shouldn't enable this option without any strong reasons.
+
+		This variable doesn't exist unless you define explicitly.
+}}}
+------------------------------------------------------------------------------
+COMMANDS					*presen-vim-commands* {{{
+
+:Presen [filename]				*:Presen*
+		Open presen buffer and start presentation.
+		If you don't specific filename then use current buffer.
+}}}
+------------------------------------------------------------------------------
+FUNCTIONS						*presen-vim-functions* {{{
+
+presen#nextPage()				*presen#nextPage()*
+		Show next page if exist.
+presen#prevPage()				*presen#prevPage()*
+		Show prev page if exist.
+presen#firstPage()				*presen#firstPage()*
+		Show first page.	
+presen#lastPage()				*presen#lastPage()*
+		Show last page.
+presen#quit()					*presen#quit()*
+		Finish presentation.
+
+}}}
+}}}
+==============================================================================
+vim:tw=78:fo=tcq2mM:ts=4:ft=help:norl:noet:fdm=marker:fen

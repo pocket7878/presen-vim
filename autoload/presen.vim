@@ -304,6 +304,9 @@ function! s:openPresenWindow()"{{{
                 setlocal hidden
                 edit `='[Presentation]'`
                 let s:bufnr = bufnr('%')
+                "Define default keymappings
+                call presen#mappings#define_default_mappings()
+                "Set filetype
                 setlocal bufhidden=hide buftype=nofile noswapfile nobuflisted
                 setlocal filetype=presen
         elseif bufwinnr(s:bufnr) != -1
@@ -409,7 +412,6 @@ function! presen#quit()"{{{
 endfunction"}}}
 
 function! presen#presentation(vpfilepath)"{{{
-        echo a:vpfilepath
         if a:vpfilepath != ''
                 "Check Error
                 if isdirectory(a:vpfilepath)
@@ -423,6 +425,11 @@ function! presen#presentation(vpfilepath)"{{{
                 if !filereadable(expand(a:vpfilepath))
                         call s:V.print_error("Can't read ".a:vpfilepath.'.')
                         return
+                endif
+        else
+                "Check filetype
+                if &filetype != 'vimpresen'
+                        call s:V.print_error(a:vpfilepath.'is not a vimpresen file.')
                 endif
         endif
         "プレゼンスクリプトをファイルから作成する
