@@ -426,6 +426,8 @@ function! presen#presenInfo()"{{{
        for pageNum in range(0, len(b:PresenScript[1])-1)
                if has_key(b:PresenScript[1][pageNum], 'title')
                        call add(l:infoArry, [(pageNum+1).": ".b:PresenScript[1][pageNum]['title'], pageNum+1])
+               else
+                       call add(l:infoArry, [(pageNum+1).": Untitled", pageNum+1])
                endif
        endfor
        return l:infoArry
