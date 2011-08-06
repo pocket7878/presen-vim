@@ -358,18 +358,20 @@ endfunction"}}}
 
 "ページ遷移のための関数群
 "指定番号のページを表示する
-function! s:show_page(page)"{{{
-        let b:page = a:page
-        "画面を消去
-        call curses#erase() 
-        "現在のページを表示する
-        call s:ParsePage(b:PresenScript[1][a:page - 1])
-        setlocal statusline=[%{b:page}/%{b:pages}]
-        redraw
+function! presen#showPage(page)"{{{
+        if 0 < a:page && a:page <= b:pages
+                let b:page = a:page
+                "画面を消去
+                call curses#erase() 
+                "現在のページを表示する
+                call s:ParsePage(b:PresenScript[1][a:page - 1])
+                setlocal statusline=[%{b:page}/%{b:pages}]
+                redraw
+        endif
 endfunction"}}}
 
 "現在のページを再描画する
-function s:redraw_page()"{{{
+function! s:redraw_page()"{{{
         call curses#erase()
         call s:ParsePage(b:PresenScript[1][b:page - 1])
         setlocal statusline=[%{b:page}/%{b:pages}]
@@ -380,7 +382,7 @@ function! presen#nextPage()"{{{
         if b:page != b:pages
                 let b:page += 1
         endif
-        call s:show_page(b:page)
+        call presen#showPage(b:page)
 endfunction"}}}
 
 "前のページがあればそれを表示する
@@ -388,19 +390,19 @@ function! presen#prevPage()"{{{
         if b:page != 1
                 let b:page -= 1
         endif
-        call s:show_page(b:page)
+        call presen#showPage(b:page)
 endfunction"}}}
 
 "最初のページに遷移する
 function! presen#firstPage()"{{{
         let b:page = 1
-        call s:show_page(b:page)
+        call presen#showPage(b:page)
 endfunction"}}}
 
 "最後のページに遷移する
 function! presen#lastPage()"{{{
         let b:page = b:pages
-        call s:show_page(b:page)
+        call presen#showPage(b:page)
 endfunction"}}}
 
 "プレゼンを終了する
@@ -415,6 +417,18 @@ function! presen#quit()"{{{
         if !s:hiddenOpt
                 setlocal nohidden
         endif
+endfunction"}}}
+
+"現在のプレゼンテーションにかんする情報をかえす
+function! presen#presenInfo()"{{{
+       "Collect page titles 
+       let l:infoArry = []
+       for pageNum in range(0, len(b:PresenScript[1])-1)
+               if has_key(b:PresenScript[1][pageNum], 'title')
+                       call add(l:infoArry, [(pageNum+1).": ".b:PresenScript[1][pageNum]['title'], pageNum+1])
+               endif
+       endfor
+       return l:infoArry
 endfunction"}}}
 
 function! presen#presentation(vpfilepath)"{{{
@@ -461,7 +475,7 @@ function! presen#presentation(vpfilepath)"{{{
         "nextPage()やprevPage()から表示するために、pagesをバッファローカルな変数に保存
         let b:pages = l:pages
         "1ページを表示
-        call s:show_page(1)
+        call presen#showPage(1)
         "バッファーローカルな再描画autocmdを設定する
         autocmd! VimResized <buffer> call s:redraw_page()
 endfunction"}}}

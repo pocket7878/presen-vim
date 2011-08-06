@@ -61,6 +61,8 @@ COMMANDS					*presen-vim-commands* {{{
 ------------------------------------------------------------------------------
 FUNCTIONS						*presen-vim-functions* {{{
 
+presen#showPage(pageNum)		*presen#showPage()*
+		Show specified page.
 presen#nextPage()				*presen#nextPage()*
 		Show next page if exist.
 presen#prevPage()				*presen#prevPage()*
