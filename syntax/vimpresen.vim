@@ -16,6 +16,7 @@ syn keyword vpKeyword   hl
 syn keyword vpKeyword   width
 syn keyword vpKeyword   height
 syn keyword vpKeyword   font
+syn keyword vpKeyword   fontwide
 syn region  vpString	start=+"+ skip=+\\\\\|\\"+ end=+"+
 
 "Define highlighting

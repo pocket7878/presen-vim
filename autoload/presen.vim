@@ -173,6 +173,8 @@ function! s:ContextArrToContextDict(context)"{{{
                         let l:dict['height'] = a:context[idx][1]
                 elseif a:context[idx][0] ==# 'font'
                         let l:dict['font'] = a:context[idx][1]
+                elseif a:context[idx][0] ==# 'fontwide'
+                        let l:dict['fontwide'] = a:context[idx][1]
                 endif
         endfor
         return l:dict
@@ -332,6 +334,7 @@ function! s:getCurrentContext()"{{{
         let l:context['height'] = &lines
         if has('gui_running')
                 let l:context['font'] = &guifont
+                let l:context['fontwide'] = &guifontwide
         endif
         return l:context
 endfunction"}}}
@@ -346,6 +349,9 @@ function! s:applyContext(context)"{{{
         if has('gui_running')
                 if has_key(a:context, 'font')
                         execute 'set guifont='.escape(a:context['font'],' ')
+                endif
+                if has_key(a:context, 'fontwide')
+                        execute 'set guifontwide='.escape(a:context['fontwide'],' ')
                 endif
         endif
 endfunction"}}}

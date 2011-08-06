@@ -1,7 +1,8 @@
 (defcontext
  (width 100)
  (height 80)
- (font "Monospace 10"))
+ (font "Monospace 10")
+ (fontwide "Monospace 10"))
 
 (defslide
  ((title  "Introduction of curses-vim and presenvim")
