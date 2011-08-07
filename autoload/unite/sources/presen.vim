@@ -31,7 +31,8 @@ endfunction
 function! s:unite_source.gather_candidates(args, context)
   let titleList = presen#presenInfo()
   return map(titleList, '{
-        \ "word": v:val[0],
+        \ "word": v:val[0][2 : ],
+        \ "abbr": v:val[0],
         \ "source": "presen",
         \ "kind": "command",
         \ "action__command": s:showPageCommand(v:val[1]),
