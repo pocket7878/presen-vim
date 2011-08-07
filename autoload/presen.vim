@@ -233,8 +233,8 @@ function! s:parseContents(linum,centerp, contents)"{{{
                                 let l:linum += 1
                                 let l:linum = s:parseContents(l:linum,1, item[1 : ])
                                 let l:linum += 1
-                        elseif item[0] ==# "hl"
-                                call curses#display#mvprinthl(l:linum)
+                        elseif item[0] ==# "hr"
+                                call curses#display#mvprinthr(l:linum)
                                 let l:linum += 1
                         elseif item[0] ==# "vimlogo"
                                 if a:centerp
@@ -589,34 +589,39 @@ function! s:sexp2html(sexpArry)"{{{
                        let l:result = ['<center>']
                        for item in a:sexpArry[1 : len(a:sexpArry)-1]
                               let l:result = extend(l:result,s:sexp2html(item))
+                              unlet item
                        endfor
                        let l:result = add(l:result, '</center>')
                elseif a:sexpArry[0][0] ==# 'p'
                        let l:result = ['<p>']
                        for item in a:sexpArry[1 : len(a:sexpArry)-1]
                               let l:result = extend(l:result, s:sexp2html(item))
+                              unlet item
                        endfor
                        let l:result = add(l:result, '</p>')
-               elseif a:sexpArry[0][0] ==# 'hl'
-                       let l:result = ['</hl>']
+               elseif a:sexpArry[0][0] ==# 'hr'
+                       let l:result = ['<hr>']
                elseif a:sexpArry[0][0] ==# 't'
                        let l:result = ['<h3>'.a:sexpArry[0][1].'</h3>']
                elseif a:sexpArry[0][0] ==# 'ul'
                        let l:result = ['<ul>']
                        for item in a:sexpArry[1 : len(a:sexpArry)-1]
                               let l:result = add(l:result, '<li>'.item.'</li>')
+                              unlet item
                        endfor
                        let l:result = add(l:result, '</ul>')
                elseif a:sexpArry[0][0] ==# 'ol'
                        let l:result = ['<ol>']
                        for item in a:sexpArry[1 : len(a:sexpArry)-1]
                               let l:result = extend(l:result, s:sexp2html(item))
+                              unlet item
                        endfor
                        let l:result = add(l:result, '</ol>')
                elseif a:sexpArry[0][0] ==# 'lines'
                        let l:result = ['<pre>']
                        for item in a:sexpArry[1 : len(a:sexpArry)-1]
                               let l:result = extend(l:result, s:sexp2html(item))
+                              unlet item
                        endfor
                        let l:result = add(l:result, '</pre>')
                endif
@@ -625,34 +630,39 @@ function! s:sexp2html(sexpArry)"{{{
                        let l:result = ['<center>']
                        for item in a:sexpArry[1 : len(a:sexpArry)-1]
                               let l:result = extend(l:result,s:sexp2html(item))
+                              unlet item
                        endfor
                        let l:result = add(l:result, '</center>')
                elseif a:sexpArry[0] ==# 'p'
                        let l:result = ['<p>']
                        for item in a:sexpArry[1 : len(a:sexpArry)-1]
                               let l:result = extend(l:result, s:sexp2html(item))
+                              unlet item
                        endfor
                        let l:result = add(l:result, '</p>')
-               elseif a:sexpArry[0] ==# 'hl'
-                       let l:result = ['</hl>']
+               elseif a:sexpArry[0] ==# 'hr'
+                       let l:result = ['<hr>']
                elseif a:sexpArry[0] ==# 't'
                        let l:result = ['<h3>'.a:sexpArry[1].'</h3>']
                elseif a:sexpArry[0] ==# 'ul'
                        let l:result = ['<ul>']
                        for item in a:sexpArry[1 : len(a:sexpArry)-1]
                               let l:result = add(l:result, '<li>'.item.'</li>')
+                              unlet item
                        endfor
                        let l:result = add(l:result, '</ul>')
                elseif a:sexpArry[0] ==# 'ol'
                        let l:result = ['<ol>']
                        for item in a:sexpArry[1 : len(a:sexpArry)-1]
                               let l:result = add(l:result, '<li>'.item.'</li>')
+                              unlet item
                        endfor
                        let l:result = add(l:result, '</ol>')
                elseif a:sexpArry[0] ==# 'lines'
                        let l:result = ['<pre>']
                        for item in a:sexpArry[1 : len(a:sexpArry)-1]
                               let l:result = add(l:result, item)
+                              unlet item
                        endfor
                        let l:result = add(l:result, '</pre>')
                endif

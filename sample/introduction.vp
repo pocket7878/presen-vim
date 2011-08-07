@@ -13,7 +13,7 @@
  ((title "curses-vimとpresen-vimのご紹介")
   (contents
    (center
-    (hl)
+    (hr)
     (ol
      "curses-vimとは？"
      "curses-vimでできること"

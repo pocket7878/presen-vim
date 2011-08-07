@@ -2,7 +2,7 @@
 
 Author:
   Pocket7878 <poketo7878@gmail.com>
-Version: 1.2
+Version: 1.5
 License: Under the same license as Vim itself (see :help license)
 
 ==============================================================================
@@ -54,13 +54,19 @@ g:presen_vim_no_default_key_mappings  *g:presen_vim_no_default_key_mappings*
 ------------------------------------------------------------------------------
 COMMANDS					*presen-vim-commands* {{{
 
-:Presen [filename]				*:Presen*
+:Presen  [filename]				*:Presen*
 		Open presen buffer and start presentation.
+		If you don't specific filename then use current buffer.
+:Vp2html [filename]				*:Presen*
+		Convert vimpresen file to html.
 		If you don't specific filename then use current buffer.
 }}}
 ------------------------------------------------------------------------------
 FUNCTIONS						*presen-vim-functions* {{{
 
+presen#presentation(vpfilepath)	*presen#presentation()*
+		Start presentation.
+		If you dont specified filepath then use current buffer contents.
 presen#showPage(pageNum)		*presen#showPage()*
 		Show specified page.
 presen#nextPage()				*presen#nextPage()*
@@ -73,6 +79,9 @@ presen#lastPage()				*presen#lastPage()*
 		Show last page.
 presen#quit()					*presen#quit()*
 		Finish presentation.
+presen#vp2html(vpfilepath)		*presen#vp2html()*
+		Convert vimpresen file to html.
+		If you dont specified filepath then use current buffer contents.
 
 }}}
 }}}

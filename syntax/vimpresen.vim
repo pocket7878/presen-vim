@@ -12,7 +12,7 @@ syn keyword vpKeyword   lines
 syn keyword vpKeyword   ul
 syn keyword vpKeyword   ol
 syn keyword vpKeyword   vimlogo
-syn keyword vpKeyword   hl
+syn keyword vpKeyword   hr
 syn keyword vpKeyword   width
 syn keyword vpKeyword   height
 syn keyword vpKeyword   font
