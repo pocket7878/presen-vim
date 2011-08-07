@@ -10,6 +10,14 @@ If you omit argument then use current buffer contents.
 
         :Presen
 
+If you want to conver your vimpresen source to html.
+
+        :Vp2html /path/to/your/vimpresen/file
+
+If you omit argument then use current buffer contents.
+
+        :Vp2html 
+
 ## Write Slides
 See a sample files under sample directory for example. 
 
