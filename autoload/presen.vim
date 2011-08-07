@@ -1,6 +1,7 @@
 "Vital
 let s:V = vital#of('presen_vim')
 
+"VimPresenをパースするための関数郡
 function! s:ReadVp(vpfilepath)"{{{
         echo a:vpfilepath
         let l:buf = []
