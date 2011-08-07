@@ -1,6 +1,7 @@
 "Vital
 let s:V = vital#of('presen_vim')
 
+"VimPresenをパースするための関数郡
 function! s:ReadVp(vpfilepath)"{{{
         echo a:vpfilepath
         let l:buf = []
@@ -173,6 +174,8 @@ function! s:ContextArrToContextDict(context)"{{{
                         let l:dict['height'] = a:context[idx][1]
                 elseif a:context[idx][0] ==# 'font'
                         let l:dict['font'] = a:context[idx][1]
+                elseif a:context[idx][0] ==# 'fontwide'
+                        let l:dict['fontwide'] = a:context[idx][1]
                 endif
         endfor
         return l:dict
@@ -190,8 +193,8 @@ function! s:PageArrToPageDict(page)"{{{
         return l:dict
 endfunction"}}}
 
-function! s:CreatePresenScript(vpfilepath)"{{{
-        let l:tokens = s:CreateToken(a:vpfilepath)
+function! s:CreatePresenScript(vpfilepath)"{{{ 
+        let l:tokens = s:CreateToken(a:vpfilepath) 
         let l:pages = []
         let l:context = {}
         let l:idx = 0
@@ -304,6 +307,9 @@ function! s:openPresenWindow()"{{{
                 setlocal hidden
                 edit `='[Presentation]'`
                 let s:bufnr = bufnr('%')
+                "Define default keymappings
+                call presen#mappings#define_default_mappings()
+                "Set filetype
                 setlocal bufhidden=hide buftype=nofile noswapfile nobuflisted
                 setlocal filetype=presen
         elseif bufwinnr(s:bufnr) != -1
@@ -329,6 +335,7 @@ function! s:getCurrentContext()"{{{
         let l:context['height'] = &lines
         if has('gui_running')
                 let l:context['font'] = &guifont
+                let l:context['fontwide'] = &guifontwide
         endif
         return l:context
 endfunction"}}}
@@ -344,27 +351,39 @@ function! s:applyContext(context)"{{{
                 if has_key(a:context, 'font')
                         execute 'set guifont='.escape(a:context['font'],' ')
                 endif
+                if has_key(a:context, 'fontwide')
+                        execute 'set guifontwide='.escape(a:context['fontwide'],' ')
+                endif
         endif
 endfunction"}}}
 
 "ページ遷移のための関数群
 "指定番号のページを表示する
-function! s:show_page(page)"{{{
-        let b:page = a:page
-        "画面を消去
-        call curses#erase() 
-        "現在のページを表示する
-        call s:ParsePage(b:PresenScript[1][a:page - 1])
+function! presen#showPage(page)"{{{
+        if 0 < a:page && a:page <= b:pages
+                let b:page = a:page
+                "画面を消去
+                call curses#erase() 
+                "現在のページを表示する
+                call s:ParsePage(b:PresenScript[1][a:page - 1])
+                setlocal statusline=[%{b:page}/%{b:pages}]
+                redraw
+        endif
+endfunction"}}}
+
+"現在のページを再描画する
+function! s:redraw_page()"{{{
+        call curses#erase()
+        call s:ParsePage(b:PresenScript[1][b:page - 1])
         setlocal statusline=[%{b:page}/%{b:pages}]
         redraw
 endfunction"}}}
-
 "次のページがあればそれを表示する
 function! presen#nextPage()"{{{
         if b:page != b:pages
                 let b:page += 1
         endif
-        call s:show_page(b:page)
+        call presen#showPage(b:page)
 endfunction"}}}
 
 "前のページがあればそれを表示する
@@ -372,36 +391,50 @@ function! presen#prevPage()"{{{
         if b:page != 1
                 let b:page -= 1
         endif
-        call s:show_page(b:page)
+        call presen#showPage(b:page)
 endfunction"}}}
 
 "最初のページに遷移する
 function! presen#firstPage()"{{{
         let b:page = 1
-        call s:show_page(b:page)
+        call presen#showPage(b:page)
 endfunction"}}}
 
 "最後のページに遷移する
 function! presen#lastPage()"{{{
         let b:page = b:pages
-        call s:show_page(b:page)
+        call presen#showPage(b:page)
 endfunction"}}}
 
 "プレゼンを終了する
 function! presen#quit()"{{{
         "画面を復帰
         call curses#endWin()
-        "コンテキストも復帰する
-        call s:applyContext(s:context)
         "そして元のバッファーへ復帰するのさ
         execute 'buffer' s:prevBufNr
+        "ここの順序をまちがえるとVimresizedに反応して再描画される
+        "コンテキストも復帰する
+        call s:applyContext(s:context)
         if !s:hiddenOpt
                 setlocal nohidden
         endif
 endfunction"}}}
 
+"現在のプレゼンテーションにかんする情報をかえす
+function! presen#presenInfo()"{{{
+       "Collect page titles 
+       let l:infoArry = []
+       for pageNum in range(0, len(b:PresenScript[1])-1)
+               if has_key(b:PresenScript[1][pageNum], 'title')
+                       call add(l:infoArry, [(pageNum+1).": ".b:PresenScript[1][pageNum]['title'], pageNum+1])
+               else
+                       call add(l:infoArry, [(pageNum+1).": Untitled", pageNum+1])
+               endif
+       endfor
+       return l:infoArry
+endfunction"}}}
+
 function! presen#presentation(vpfilepath)"{{{
-        echo a:vpfilepath
         if a:vpfilepath != ''
                 "Check Error
                 if isdirectory(a:vpfilepath)
@@ -415,6 +448,11 @@ function! presen#presentation(vpfilepath)"{{{
                 if !filereadable(expand(a:vpfilepath))
                         call s:V.print_error("Can't read ".a:vpfilepath.'.')
                         return
+                endif
+        else
+                "Check filetype
+                if &filetype != 'vimpresen'
+                        call s:V.print_error(a:vpfilepath.'is not a vimpresen file.')
                 endif
         endif
         "プレゼンスクリプトをファイルから作成する
@@ -440,7 +478,9 @@ function! presen#presentation(vpfilepath)"{{{
         "nextPage()やprevPage()から表示するために、pagesをバッファローカルな変数に保存
         let b:pages = l:pages
         "1ページを表示
-        call s:show_page(1)
+        call presen#showPage(1)
+        "バッファーローカルな再描画autocmdを設定する
+        autocmd! VimResized <buffer> call s:redraw_page()
 endfunction"}}}
 
 "いくつか、おもしろとしてつくっておく関数たち
@@ -482,3 +522,139 @@ function! s:cprintVimLogo(y)"{{{
 \"                 ++"])
 endfunction"}}}
 
+""VimPresenファイルを他の形式に変換するための関数郡（テスト実装段階です）
+"指定されたVimPresenファイルをHTMLに変換する
+function! presen#vp2html(vpfilepath)"{{{
+        if a:vpfilepath != ''
+                "Check Error
+                if isdirectory(a:vpfilepath)
+                        call s:V.print_error(a:vpfilepath.'is not a file.')
+                        return
+                endif
+                if glob(a:vpfilepath) ==# ''
+                        call s:V.print_error(a:vpfilepath." does not exist.")
+                        return
+                endif
+                if !filereadable(expand(a:vpfilepath))
+                        call s:V.print_error("Can't read ".a:vpfilepath.'.')
+                        return
+                endif
+                let l:fileName = a:vpfilepath
+        else
+                "Check filetype
+                if &filetype != 'vimpresen'
+                        call s:V.print_error(a:vpfilepath.'is not a vimpresen file.')
+                endif
+                let l:fileName = bufname('%')
+        endif
+        "プレゼンスクリプトをファイルから作成する
+        let l:PresenScript = s:CreatePresenScript(a:vpfilepath)
+        "コンテキストを取得
+        let l:context = l:PresenScript[0]
+        let l:htmlContens = ['<html>', '<head>', '<title>', l:fileName , '</title>', '</head>', '<body>']
+        for page in l:PresenScript[1]
+                let l:htmlContens = extend(l:htmlContens, s:page2html(page))
+        endfor
+        let l:htmlContens = extend(l:htmlContens, ['</body>', '</html>'])
+        split
+        edit `=l:fileName.'.html'`
+        for line in range(1, len(l:htmlContens))
+                call setline(line, l:htmlContens[line-1])
+        endfor
+        silent execute "normal =G"
+endfunction"}}}
+
+"ページのコンテンツをhtmlに変換する関数
+function! s:page2html(page)"{{{
+        if has_key(a:page, 'title')
+                let l:title = a:page['title']
+        else
+                let l:title = 'Untitled'
+        endif
+        let l:pagecontents = ["<h2>".l:title."</h2>"]
+        let l:contents = a:page['contents']
+        for item in l:contents
+                let l:pagecontents = extend(l:pagecontents, s:sexp2html(item[0 :]))
+                unlet item
+        endfor
+        return l:pagecontents
+endfunction"}}}
+
+function! s:sexp2html(sexpArry)"{{{
+        let l:result = []
+       if s:V.is_list(a:sexpArry[0])
+               if a:sexpArry[0][0] ==# 'center' 
+                       echo "Matching to center"
+                       let l:result = ['<center>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = extend(l:result,s:sexp2html(item))
+                       endfor
+                       let l:result = add(l:result, '</center>')
+               elseif a:sexpArry[0][0] ==# 'p'
+                       let l:result = ['<p>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = extend(l:result, s:sexp2html(item))
+                       endfor
+                       let l:result = add(l:result, '</p>')
+               elseif a:sexpArry[0][0] ==# 'hl'
+                       let l:result = ['</hl>']
+               elseif a:sexpArry[0][0] ==# 't'
+                       let l:result = ['<h3>'.a:sexpArry[0][1].'</h3>']
+               elseif a:sexpArry[0][0] ==# 'ul'
+                       let l:result = ['<ul>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = add(l:result, '<li>'.item.'</li>')
+                       endfor
+                       let l:result = add(l:result, '</ul>')
+               elseif a:sexpArry[0][0] ==# 'ol'
+                       let l:result = ['<ol>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = extend(l:result, s:sexp2html(item))
+                       endfor
+                       let l:result = add(l:result, '</ol>')
+               elseif a:sexpArry[0][0] ==# 'lines'
+                       let l:result = ['<pre>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = extend(l:result, s:sexp2html(item))
+                       endfor
+                       let l:result = add(l:result, '</pre>')
+               endif
+       else
+               if a:sexpArry[0] ==# 'center' 
+                       let l:result = ['<center>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = extend(l:result,s:sexp2html(item))
+                       endfor
+                       let l:result = add(l:result, '</center>')
+               elseif a:sexpArry[0] ==# 'p'
+                       let l:result = ['<p>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = extend(l:result, s:sexp2html(item))
+                       endfor
+                       let l:result = add(l:result, '</p>')
+               elseif a:sexpArry[0] ==# 'hl'
+                       let l:result = ['</hl>']
+               elseif a:sexpArry[0] ==# 't'
+                       let l:result = ['<h3>'.a:sexpArry[1].'</h3>']
+               elseif a:sexpArry[0] ==# 'ul'
+                       let l:result = ['<ul>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = add(l:result, '<li>'.item.'</li>')
+                       endfor
+                       let l:result = add(l:result, '</ul>')
+               elseif a:sexpArry[0] ==# 'ol'
+                       let l:result = ['<ol>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = add(l:result, '<li>'.item.'</li>')
+                       endfor
+                       let l:result = add(l:result, '</ol>')
+               elseif a:sexpArry[0] ==# 'lines'
+                       let l:result = ['<pre>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = add(l:result, item)
+                       endfor
+                       let l:result = add(l:result, '</pre>')
+               endif
+       endif
+       return l:result
+endfunction"}}}
