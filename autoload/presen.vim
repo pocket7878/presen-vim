@@ -558,6 +558,7 @@ function! presen#vp2html(vpfilepath)"{{{
         let l:htmlContens = extend(l:htmlContens, ['</body>', '</html>'])
         split
         edit `=l:fileName.'.html'`
+        silent % delete _
         for line in range(1, len(l:htmlContens))
                 call setline(line, l:htmlContens[line-1])
         endfor
