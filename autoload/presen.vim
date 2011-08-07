@@ -585,7 +585,6 @@ function! s:sexp2html(sexpArry)"{{{
         let l:result = []
        if s:V.is_list(a:sexpArry[0])
                if a:sexpArry[0][0] ==# 'center' 
-                       echo "Matching to center"
                        let l:result = ['<center>']
                        for item in a:sexpArry[1 : len(a:sexpArry)-1]
                               let l:result = extend(l:result,s:sexp2html(item))
@@ -624,6 +623,11 @@ function! s:sexp2html(sexpArry)"{{{
                               unlet item
                        endfor
                        let l:result = add(l:result, '</pre>')
+               elseif a:sexpArry[0][0] ==# 'vimlogo'
+                       "TODO 
+                       "Deal with vimlogo
+               else
+                        let l:result = [a:sexpArry[0][0].'</br>']
                endif
        else
                if a:sexpArry[0] ==# 'center' 
@@ -665,7 +669,14 @@ function! s:sexp2html(sexpArry)"{{{
                               unlet item
                        endfor
                        let l:result = add(l:result, '</pre>')
+               elseif a:sexpArry[0] ==# 'vimlogo'
+                       "TODO 
+                       "Deal with vimlogo
+               else
+                        let l:result = [printf("%s</br>",a:sexpArry)]
                endif
        endif
        return l:result
 endfunction"}}}
+
+call presen#vp2html('/home/masato/.vim/bundle/presen-vim/sample/introduction.vp')
