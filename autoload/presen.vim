@@ -193,8 +193,8 @@ function! s:PageArrToPageDict(page)"{{{
         return l:dict
 endfunction"}}}
 
-function! s:CreatePresenScript(vpfilepath)"{{{
-        let l:tokens = s:CreateToken(a:vpfilepath)
+function! s:CreatePresenScript(vpfilepath)"{{{ 
+        let l:tokens = s:CreateToken(a:vpfilepath) 
         let l:pages = []
         let l:context = {}
         let l:idx = 0
@@ -522,3 +522,139 @@ function! s:cprintVimLogo(y)"{{{
 \"                 ++"])
 endfunction"}}}
 
+""VimPresenファイルを他の形式に変換するための関数郡（テスト実装段階です）
+"指定されたVimPresenファイルをHTMLに変換する
+function! presen#vp2html(vpfilepath)"{{{
+        if a:vpfilepath != ''
+                "Check Error
+                if isdirectory(a:vpfilepath)
+                        call s:V.print_error(a:vpfilepath.'is not a file.')
+                        return
+                endif
+                if glob(a:vpfilepath) ==# ''
+                        call s:V.print_error(a:vpfilepath." does not exist.")
+                        return
+                endif
+                if !filereadable(expand(a:vpfilepath))
+                        call s:V.print_error("Can't read ".a:vpfilepath.'.')
+                        return
+                endif
+                let l:fileName = a:vpfilepath
+        else
+                "Check filetype
+                if &filetype != 'vimpresen'
+                        call s:V.print_error(a:vpfilepath.'is not a vimpresen file.')
+                endif
+                let l:fileName = bufname('%')
+        endif
+        "プレゼンスクリプトをファイルから作成する
+        let l:PresenScript = s:CreatePresenScript(a:vpfilepath)
+        "コンテキストを取得
+        let l:context = l:PresenScript[0]
+        let l:htmlContens = ['<html>', '<head>', '<title>', l:fileName , '</title>', '</head>', '<body>']
+        for page in l:PresenScript[1]
+                let l:htmlContens = extend(l:htmlContens, s:page2html(page))
+        endfor
+        let l:htmlContens = extend(l:htmlContens, ['</body>', '</html>'])
+        split
+        edit `=l:fileName.'.html'`
+        for line in range(1, len(l:htmlContens))
+                call setline(line, l:htmlContens[line-1])
+        endfor
+        silent execute "normal =G"
+endfunction"}}}
+
+"ページのコンテンツをhtmlに変換する関数
+function! s:page2html(page)"{{{
+        if has_key(a:page, 'title')
+                let l:title = a:page['title']
+        else
+                let l:title = 'Untitled'
+        endif
+        let l:pagecontents = ["<h2>".l:title."</h2>"]
+        let l:contents = a:page['contents']
+        for item in l:contents
+                let l:pagecontents = extend(l:pagecontents, s:sexp2html(item[0 :]))
+                unlet item
+        endfor
+        return l:pagecontents
+endfunction"}}}
+
+function! s:sexp2html(sexpArry)"{{{
+        let l:result = []
+       if s:V.is_list(a:sexpArry[0])
+               if a:sexpArry[0][0] ==# 'center' 
+                       echo "Matching to center"
+                       let l:result = ['<center>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = extend(l:result,s:sexp2html(item))
+                       endfor
+                       let l:result = add(l:result, '</center>')
+               elseif a:sexpArry[0][0] ==# 'p'
+                       let l:result = ['<p>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = extend(l:result, s:sexp2html(item))
+                       endfor
+                       let l:result = add(l:result, '</p>')
+               elseif a:sexpArry[0][0] ==# 'hl'
+                       let l:result = ['</hl>']
+               elseif a:sexpArry[0][0] ==# 't'
+                       let l:result = ['<h3>'.a:sexpArry[0][1].'</h3>']
+               elseif a:sexpArry[0][0] ==# 'ul'
+                       let l:result = ['<ul>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = add(l:result, '<li>'.item.'</li>')
+                       endfor
+                       let l:result = add(l:result, '</ul>')
+               elseif a:sexpArry[0][0] ==# 'ol'
+                       let l:result = ['<ol>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = extend(l:result, s:sexp2html(item))
+                       endfor
+                       let l:result = add(l:result, '</ol>')
+               elseif a:sexpArry[0][0] ==# 'lines'
+                       let l:result = ['<pre>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = extend(l:result, s:sexp2html(item))
+                       endfor
+                       let l:result = add(l:result, '</pre>')
+               endif
+       else
+               if a:sexpArry[0] ==# 'center' 
+                       let l:result = ['<center>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = extend(l:result,s:sexp2html(item))
+                       endfor
+                       let l:result = add(l:result, '</center>')
+               elseif a:sexpArry[0] ==# 'p'
+                       let l:result = ['<p>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = extend(l:result, s:sexp2html(item))
+                       endfor
+                       let l:result = add(l:result, '</p>')
+               elseif a:sexpArry[0] ==# 'hl'
+                       let l:result = ['</hl>']
+               elseif a:sexpArry[0] ==# 't'
+                       let l:result = ['<h3>'.a:sexpArry[1].'</h3>']
+               elseif a:sexpArry[0] ==# 'ul'
+                       let l:result = ['<ul>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = add(l:result, '<li>'.item.'</li>')
+                       endfor
+                       let l:result = add(l:result, '</ul>')
+               elseif a:sexpArry[0] ==# 'ol'
+                       let l:result = ['<ol>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = add(l:result, '<li>'.item.'</li>')
+                       endfor
+                       let l:result = add(l:result, '</ol>')
+               elseif a:sexpArry[0] ==# 'lines'
+                       let l:result = ['<pre>']
+                       for item in a:sexpArry[1 : len(a:sexpArry)-1]
+                              let l:result = add(l:result, item)
+                       endfor
+                       let l:result = add(l:result, '</pre>')
+               endif
+       endif
+       return l:result
+endfunction"}}}
