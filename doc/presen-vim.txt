@@ -57,7 +57,7 @@ COMMANDS					*presen-vim-commands* {{{
 :Presen  [filename]				*:Presen*
 		Open presen buffer and start presentation.
 		If you don't specific filename then use current buffer.
-:Vp2html [filename]				*:Presen*
+:Vp2html [filename]				*:Vp2html*
 		Convert vimpresen file to html.
 		If you don't specific filename then use current buffer.
 }}}
