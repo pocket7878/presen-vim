@@ -1,4 +1,4 @@
-"小文字と大文字を区別する
+"Don't ignorecase
 syn case match
 
 "Vim Presen Keywords
@@ -7,7 +7,7 @@ syn keyword vpKeyword   defcontext
 syn keyword vpKeyword   title
 syn keyword vpKeyword   contents
 syn keyword vpKeyword   center
-syn keyword vpKeyword   p 
+syn keyword vpKeyword   p
 syn keyword vpKeyword   lines
 syn keyword vpKeyword   ul
 syn keyword vpKeyword   ol
