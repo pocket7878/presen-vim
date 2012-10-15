@@ -18,7 +18,9 @@ syn keyword vpKeyword   height
 syn keyword vpKeyword   font
 syn keyword vpKeyword   fontwide
 syn region  vpString	start=+"+ skip=+\\\\\|\\"+ end=+"+
+syn match vpComment /;.*$/
 
 "Define highlighting
 hi def link vpKeyword   Statement
 hi def link vpString    String
+hi def link vpComment Comment
