@@ -551,7 +551,9 @@ function! presen#vp2html(vpfilepath)"{{{
         let l:PresenScript = s:CreatePresenScript(a:vpfilepath)
         "コンテキストを取得
         let l:context = l:PresenScript[0]
-        let l:htmlContens = ['<html>', '<head>', '<title>', l:fileName , '</title>', '</head>', '<body>']
+        let l:htmlContens = ['<html>', '<head>',
+              \ '<meta http-equiv="content-type" content="text/html; charset=utf-8">',
+              \ '<title>', l:fileName , '</title>', '</head>', '<body>']
         for page in l:PresenScript[1]
                 let l:htmlContens = extend(l:htmlContens, s:page2html(page))
         endfor
